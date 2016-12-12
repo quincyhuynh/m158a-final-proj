@@ -23,7 +23,7 @@ void loop(){
   if (i > 1000) {
     i = 0;
   }
-  Serial.println(String(analogRead(pot)) + "-" + String(i));
+  Serial.println(String(digitalRead(s1)) + "-" + String(analogRead(pot)) + "-" + String(i));
   i++;
   delay(200);
 }
