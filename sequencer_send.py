@@ -3,32 +3,24 @@ import csv, sys, numpy as np
 import serial, pdb
 
 ser = serial.Serial('COM4', 9600, timeout=10)
-class SequenceSource(DataSource):
+class SequenceSource:
+    def __init__(self):
+        self.stored = ([0 for _ in range(6)],[0 for _ in range(6)])
+
     @property
-    def data(self):
-        return [int(i) for i in ser.readline().split('-')]
+    def notes(self):
+        return [int(i) for i in ser.readline().split('+')[1].split('-')], [int(i) for i in ser.readline().split('+')[0].split('-')]
 
-    def zero_hold(self, data, hold):
-        new_data = []
-        len_data = len(data)
-        i = 0
-        while len(new_data) < len_data * hold and i < len_data:
-            for _ in range(hold):
-                new_data.append(data[i])
-            i += 1
-
-        i = 0
-        while len(new_data) < self.num_datapoints and i < len_data:
-            for _ in range(hold):
-                new_data.append(data[i])
-            i += 1
-        return new_data
+    @property
+    def buffer(self):
+        pedal = int(ser.readline().split('+')[-1])
+        if pedal:
+            self.stored = self.notes
+        return self.stored
 
 if __name__ == '__main__':
-    # if len(sys.argv) != 1:
-    #     print('Usage: python tab_source.py <length>')
     length = 100
-    seq = SequenceSource(length, '')
+    seq = SequenceSource()
     while True:
         pm = PacketManager(length)
         pm.add_data_source(seq)

@@ -11,16 +11,28 @@ class PacketManager(object):
         self.client.connect(("localhost", port))
 
     def add_data_source(self, data_source):
-        assert isinstance(data_source, DataSource)
         self.data_sources.append(data_source)
 
     def send_to_max(self):
         bundle = OSCBundle()
-        bundle.append({'addr': "/num_tables", 'args': len(self.data_sources)})
-        bundle.append({'addr': "/length", 'args':self.num_datapoints})
+        x_range = range(6)
         for i, data_source in enumerate(self.data_sources):
-            bundle.append({'addr': "/table/{}".format(i),
-                           'args':data_source.data})
+            bundle.append({'addr': "/a/note/x",
+                           'args':x_range})
+            bundle.append({'addr': "/a/note/y",
+                           'args':data_source.notes[0]})
+            bundle.append({'addr': "/a/rest/x",
+                           'args':x_range})
+            bundle.append({'addr': "/a/rest/y",
+                           'args':data_source.notes[1]})
+            bundle.append({'addr': "/b/note/x",
+                           'args':x_range})
+            bundle.append({'addr': "/b/note/y",
+                           'args':data_source.buffer[0]})
+            bundle.append({'addr': "/b/rest/x",
+                           'args':x_range})
+            bundle.append({'addr': "/b/rest/y",
+                           'args':data_source.buffer[1]})
 
         self.client.send(bundle)
 
